@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="loveQuizApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How well do you know Vaishu?</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: url('https://raw.githubusercontent.com/HermoineG2022/quiz/main/Bonis.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-top: 20px;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        .question-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .button {
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: 0.3s;
+            width: 90%;
+            max-width: 250px;
+            display: block;
+            margin: 15px auto;
+        }
+
+        .button:hover {
+            background-color: #e05650;
+            transform: scale(1.05);
+        }
+
+        .result img {
+            width: 150px;
+            margin-top: 20px;
+        }
+
+        .result h2 {
+            margin-top: 20px;
+            font-size: 2em;
+            color: #fff;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        .feedback {
+            font-size: 1.2em;
+            margin-top: 15px;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        /* Media Queries for Mobile Responsiveness */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            p {
+                font-size: 1em;
+            }
+
+            .button {
+                font-size: 1em;
+                width: 80%;
+            }
+
+            .result img {
+                width: 120px;
+            }
+
+            .result h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body ng-controller="QuizController">
+
+    <!-- Welcome Screen -->
+    <div ng-show="!quizStarted">
+        <h1>🌙 Welcome to the Vaishu Quiz! 🌟</h1>
+        <p>This quiz is specially designed for Mathi Vanan 💖. Let's see how well you know Vaishu!</p>
+        <button class="button" ng-click="startQuiz()">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Questions -->
+    <div ng-show="quizStarted && !showResult && currentQuestion < questions.length" class="question-box">
+        <p><b>Question {{ currentQuestion + 1 }}:</b> {{ questions[currentQuestion].question }}</p>
+        <div ng-repeat="option in questions[currentQuestion].options" style="margin: 10px;">
+            <button class="button" ng-click="selectAnswer(currentQuestion, $index)">{{ option }}</button>
+        </div>
+    </div>
+
+    <!-- Feedback after each question -->
+    <div ng-show="feedbackVisible" class="feedback">
+        <p>{{ feedbackMessage }}</p>
+    </div>
+
+    <!-- Results Page -->
+    <div ng-show="showResult" class="result">
+        <div ng-if="score >= 3">
+            <h2>🎉 Yay! You Scored {{ score }}/{{ questions.length }}! 🎉</h2>
+            <p>You’re the best boyfriend! 🥰</p>
+            <img src="https://raw.githubusercontent.com/HermoineG2022/quiz/main/happy.gif" alt="Happy Cats">
+        </div>
+        <div ng-if="score < 3">
+            <h2>😿 Oh no! You Scored {{ score }}/{{ questions.length }}!</h2>
+            <p>Don’t be sad! I still love you. 💕</p>
+            <img src="https://raw.githubusercontent.com/HermoineG2022/quiz/main/sad.gif" alt="Sad Cat">
+        </div>
+    </div>
+
+    <script>
+        angular.module('loveQuizApp', [])
+            .controller('QuizController', function ($scope) {
+                // Questions and answers
+                $scope.questions = [
+                    { question: "Which chore do I hate the most?", options: ["cooking", "grocery shopping", "folding clothes", "dishwashing"], answer: 2 },
+                    { question: "What does Vaishu like about Mathi?", options: ["voice", "character", "Caring", "all of the above"], answer: 3 },
+                    { question: "What series is Vaishu currently watching?", options: ["Love Next Door", "Mr. Plankton", "When the Phone Rings", "Lovely Runner"], answer: 2 },
+                    { question: "Who do I love the most?", options: ["Kamatchi", "Mathi", "Hari", "Parvatha"], answer: 1 },
+                    { question: "What food do I love the most?", options: ["Briyani", "Pasta", "Mutta Parotta", "Ghee Roast"], answer: 1 }
+                ];
+
+                $scope.currentQuestion = 0; // Start with the first question
+                $scope.score = 0;
+                $scope.showResult = false;
+                $scope.quizStarted = false;
+                $scope.feedbackVisible = false;
+                $scope.feedbackMessage = "";
+
+                // Start the quiz
+                $scope.startQuiz = function () {
+                    $scope.quizStarted = true;
+                };
+
+                // Store the user's answer, show feedback and move to the next question
+                $scope.selectAnswer = function (questionIndex, answerIndex) {
+                    if (answerIndex === $scope.questions[questionIndex].answer) {
+                        $scope.score++;
+                        $scope.feedbackMessage = "Correct!";
+                    } else {
+                        $scope.feedbackMessage = "Incorrect!";
+                    }
+                    $scope.feedbackVisible = true;
+
+                    // Move to the next question
+                    setTimeout(function() {
+                        $scope.feedbackVisible = false;
+                        $scope.currentQuestion++;
+                        if ($scope.currentQuestion === $scope.questions.length) {
+                            $scope.showResult = true;
+                        }
+                        $scope.$apply();
+                    }, 1000); // Display feedback for 1 second
+                };
+            });
+    </script>
+</body>
+</html>
